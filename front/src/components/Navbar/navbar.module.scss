@@ -1,0 +1,38 @@
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: #70a78d;
+
+  h3 {
+    color: #fff;
+  }
+}
+
+.page_container {
+  display: flex;
+
+  .navlink {
+    padding: 0.5rem 0;
+    text-decoration: none;
+    font-weight: 500;
+    color: #ffffff;
+
+    &:not(:last-of-type) {
+      margin-right: 1rem;
+    }
+
+
+  }
+}
+
+.activeLink {
+  border-bottom: 1px solid #fff;
+}

@@ -1,7 +1,7 @@
 {
   "name": "mern-adminka",
   "version": "1.0.0",
-  "description": "",
+  "description": "MERN stack simple app",
   "main": "app.js",
   "scripts": {
     "start": "nodemon app.js",

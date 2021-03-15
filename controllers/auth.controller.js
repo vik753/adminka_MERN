@@ -7,7 +7,6 @@ const Role = require("../models/Role");
 const { roleType } = require("../models/role.types");
 const config = require("config");
 
-
 const getTokenFromHeaders = (authorization) => authorization.split(" ")[1];
 
 const registration = async (req, res, next) => {
@@ -53,9 +52,12 @@ const registration = async (req, res, next) => {
       { expiresIn: "1h" }
     );
 
-    return res
-      .status(201)
-      .json({ message: "You have successfully registered.", token: jwtToken });
+    return res.status(201).json({
+      message: "You have successfully registered.",
+      token: jwtToken,
+      userId: user._id,
+      roles: [userRole],
+    });
   } catch (err) {
     return res.status(400).json({ message: "Registration error." });
   }
@@ -91,9 +93,20 @@ const login = async (req, res, next) => {
       { expiresIn: "1h" }
     );
 
-    return res
-      .status(201)
-      .json({ message: "You have successfully logged.", token: jwtToken });
+    const getRoleNames = async () =>
+      Promise.all(
+        candidate.roles.map(async (role) => {
+          const result = await Role.findById(role);
+          return result.value;
+        })
+      );
+
+    return res.status(201).json({
+      message: "You have successfully logged.",
+      token: jwtToken,
+      userId: candidate._id,
+      roles: await getRoleNames(),
+    });
   } catch (err) {
     console.log(err);
   }
@@ -108,13 +121,13 @@ const getUsers = async (req, res, next) => {
         .json({ message: "Error. No authorization token." });
     }
 
-    const { userId, userRoles} = jwt.decode(token);
+    const { userId, userRoles } = jwt.decode(token);
 
     const user = await User.findById(userId);
-    const adminRole = await Role.findOne({value: roleType.ADMIN});
+    const adminRole = await Role.findOne({ value: roleType.ADMIN });
 
     if (!user.roles.includes(adminRole._id)) {
-      return res.status(401).json({message: 'Permission denied.'})
+      return res.status(401).json({ message: "Permission denied." });
     }
 
     const users = await User.find();
@@ -137,13 +150,13 @@ const getRoles = async (req, res, next) => {
         .json({ message: "Error. No authorization token." });
     }
 
-    const { userId, userRoles} = jwt.decode(token);
+    const { userId, userRoles } = jwt.decode(token);
 
     const user = await User.findById(userId);
-    const adminRole = await Role.findOne({value: roleType.ADMIN});
+    const adminRole = await Role.findOne({ value: roleType.ADMIN });
 
     if (!user.roles.includes(adminRole._id)) {
-      return res.status(401).json({message: 'Permission denied.'})
+      return res.status(401).json({ message: "Permission denied." });
     }
 
     const roles = await Role.find();
