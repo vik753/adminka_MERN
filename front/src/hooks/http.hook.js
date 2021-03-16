@@ -9,7 +9,7 @@ export const useHttp = () => {
     async (method = "POST", url = null, data = {}, headers = {}) => {
       try {
         if (!url) {
-          throw new Error('HTTP Error: no URL in useHttp.')
+          throw new Error("HTTP Error: no URL in useHttp.");
         }
         setLoading(true);
 
@@ -21,7 +21,15 @@ export const useHttp = () => {
       } catch (err) {
         // console.log('ERR', err.response.data);
         setLoading(false);
-        setError(err.response.data.message);
+        if (err.response.data && err.response.data.errors) {
+          const errorsArr = err.response.data.errors.map((err) => err.msg);
+          errorsArr.unshift(err.response.data.message);
+          const uniqueMessages = [...new Set(errorsArr)];
+          setError(uniqueMessages.join(" "));
+        } else {
+          setError(err.response.data.message);
+        }
+
         throw err;
       }
     },
@@ -32,7 +40,3 @@ export const useHttp = () => {
 
   return { httpError, clearHttpError, isLoading, request };
 };
-
-
-
-

@@ -69,7 +69,7 @@ const login = async (req, res, next) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({
         errors: errors.array(),
-        message: "Registration error. Incorrect email or password.",
+        message: "Login error. Incorrect email or password.",
       });
     }
 

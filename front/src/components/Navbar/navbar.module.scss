@@ -24,6 +24,7 @@ ul {
     text-decoration: none;
     font-weight: 500;
     color: #ffffff;
+    cursor: pointer;
 
     &:not(:last-of-type) {
       margin-right: 1rem;

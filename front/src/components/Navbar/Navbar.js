@@ -1,7 +1,18 @@
-import { NavLink } from "react-router-dom";
+import { useContext } from "react";
+import { NavLink, useHistory } from "react-router-dom";
 import styles from "./navbar.module.scss";
+import { AuthContext } from "../../context/AuthContext";
 
 export const Navbar = () => {
+  const { logout, roles } = useContext(AuthContext);
+  const history = useHistory();
+
+  const logoutHandler = (e) => {
+    e.preventDefault();
+    logout();
+    history.push("/");
+  };
+
   return (
     <nav className={styles.container}>
       <div>
@@ -15,20 +26,18 @@ export const Navbar = () => {
         >
           Home
         </NavLink>
-        <NavLink
-          className={styles.navlink}
-          activeClassName={styles.activeLink}
-          to="/admin"
-        >
-          Admin
-        </NavLink>
-        <NavLink
-          className={styles.navlink}
-          activeClassName={styles.activeLink}
-          to="/logout"
-        >
+        {roles.includes('ADMIN') && (
+          <NavLink
+            className={styles.navlink}
+            activeClassName={styles.activeLink}
+            to="/admin"
+          >
+            Admin
+          </NavLink>
+        )}
+        <a className={styles.navlink} onClick={logoutHandler}>
           Logout
-        </NavLink>
+        </a>
       </div>
     </nav>
   );

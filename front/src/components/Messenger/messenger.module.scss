@@ -1,0 +1,46 @@
+.message {
+  position: absolute;
+  right: 10px;
+  width: 80vw;
+  background: #003558;
+  border: 1px solid lighten(#003558, 10%);
+  border-radius: 4px;
+  display: inline-flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 100;
+  opacity: 0.8;
+  padding: 0 10px;
+  color: white;
+
+  p {
+    font-size: 1rem;
+    font-weight: 400;
+    padding: 10px;
+    margin: 0;
+  }
+
+  span {
+    cursor: pointer;
+    flex: 0 0 30px;
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: 30px;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid white;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    transition: 0.2s;
+    padding: 0;
+    margin: 0;
+    line-height: 1;
+    display: flex;
+    text-align: center;
+
+    &:hover {
+      transform: rotate(360deg);
+    }
+  }
+}

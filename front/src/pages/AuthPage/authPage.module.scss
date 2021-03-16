@@ -24,7 +24,7 @@ input {
   width: 100%;
   margin: 0 0 1rem;
 
-  input {
+  button {
     width: 100%;
     text-transform: uppercase;
     font-size: 1.2rem;
@@ -32,6 +32,16 @@ input {
     padding: 0.5rem;
     background: #b8b8b8;
     cursor: pointer;
+    border: 1px solid transparent;
+    transition: 0.2s;
+
+    &:active {
+      background: darken(#b8b8b8, 10%);
+    }
+
+    &:focus {
+      outline: none;
+    }
   }
 }
 
@@ -62,6 +72,17 @@ input {
   margin-bottom: 1rem;
 }
 
+.hiddenEl {
+  position: relative;
+  transform: translateY(-100px);
+  opacity: 0;
+}
+
+.changedPositionElements {
+  position: relative;
+  transform: translateY(-25px);
+}
+
 .btn_group {
   .btn {
     background: #b8b8b8;
@@ -69,6 +90,9 @@ input {
     color: #fff;
     padding: 0.5rem 1rem;
     cursor: pointer;
+    transition: 0.2s;
+    width: 110px;
+    opacity: 1;
 
     &:focus {
       outline: none;
@@ -77,6 +101,8 @@ input {
     &:active {
       background: darken(#b8b8b8, 10%);
     }
+    &:disabled {
+      opacity: 0.3;
+    }
   }
 }
-

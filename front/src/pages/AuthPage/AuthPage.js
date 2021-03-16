@@ -1,9 +1,15 @@
-import { useState, useEffect, useContext } from "react";
-import {useHistory} from "react-router-dom";
+import { useState, useEffect, useContext, useRef } from "react";
+import { useHistory } from "react-router-dom";
 
 import styles from "./authPage.module.scss";
 import { useHttp } from "../../hooks/http.hook";
-import {AuthContext} from "../../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
+import {
+  changePositionHide,
+  changePositionShow,
+  hideElements,
+  showElements,
+} from "../../helpers/animations";
 
 export const AuthPage = () => {
   const [formData, setFormData] = useState({
@@ -11,17 +17,29 @@ export const AuthPage = () => {
     email: "",
     password: "",
   });
-  const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(false);
   const { httpError, clearHttpError, isLoading, request } = useHttp();
-  const { jwtToken, userId, roles, saveLogin, logout, ready } = useContext(AuthContext);
+  const { jwtToken, userId, roles, saveLogin, logout, ready, showMessage } = useContext(
+    AuthContext
+  );
   const history = useHistory();
+  const nameInputEl = useRef(null);
+  const nameLabelEl = useRef(null);
+  const nameDivEl = useRef(null);
+
+  const emailLabelEl = useRef(null);
+  const emailInputEl = useRef(null);
+  const passLabelEl = useRef(null);
+  const passInputEl = useRef(null);
+
 
   /*----------------------
-  * Error Handler
-  * ----------------------*/
+   * Error Handler
+   * ----------------------*/
   useEffect(() => {
     if (httpError) {
       //TODO create message viewer.
+      showMessage(httpError);
       console.log("HTTP Error: ", httpError);
       clearHttpError();
     }
@@ -29,8 +47,7 @@ export const AuthPage = () => {
 
   useEffect(() => {
     if (jwtToken) {
-      setIsLogin(true);
-      history.push("/home")
+      history.push("/home");
     }
   }, [jwtToken]);
 
@@ -41,31 +58,38 @@ export const AuthPage = () => {
     }));
   };
 
-  const registerHandler = async (e) => {
+  const onSubmitHandler = async (e) => {
+    e.preventDefault();
     try {
-      const data = await request("POST", "/auth/registration", {
+      const method = e.nativeEvent.submitter.name;
+      const data = await request("POST", `/auth/${method}`, {
         ...formData,
-        userRole: "USER",
+        userRole: method === "registration" ? "USER" : null,
       });
       const { message, token, userId, roles } = data;
       saveLogin(token, userId, roles);
-      console.log("registerHandler :", message);
     } catch (err) {
       console.log("registerHandler error: ", err);
     }
   };
 
-  const loginHandler = async (e) => {
-    try {
-      const data = await request("POST", "/auth/login", {
-        email: formData.email,
-        password: formData.password,
-      });
-      const { message, token, userId, roles } = data;
-      saveLogin(token, userId, roles);
-    } catch (err) {
-      console.log("loginHandler error: ", err);
-    }
+  const chooseAuthHandler = (e) => {
+    const hiddenElements = [
+      nameDivEl.current,
+      nameInputEl.current,
+      nameLabelEl.current,
+    ];
+    const changePositionElements = [
+      emailLabelEl.current,
+      emailInputEl.current,
+      passLabelEl.current,
+      passInputEl.current,
+    ];
+    isLogin ? hideElements(hiddenElements) : showElements(hiddenElements);
+    isLogin
+      ? changePositionHide(changePositionElements)
+      : changePositionShow(changePositionElements);
+    setIsLogin((state) => !state);
   };
 
   return (
@@ -73,30 +97,40 @@ export const AuthPage = () => {
       <div className={styles.form}>
         <h1>Authorization</h1>
         <div className={styles.tabs}>
-          <input
-            type="button"
-            name="loginBtn"
-            value={isLogin ? "Go to login" : "Go to registration"}
-            onClick={() => setIsLogin((state) => !state)}
-          />
+          <button name="loginBtn" onClick={chooseAuthHandler}>
+            {isLogin ? "Go to login" : "Go to registration"}
+          </button>
         </div>
-        <div className={styles.form}>
-          {isLogin && (
-            <div className={styles.inputBox}>
-              <label htmlFor="name">Name: </label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                value={formData.name}
-                onChange={changeHandler}
-                placeholder="Your name"
-              />
-            </div>
-          )}
-          <div className={styles.inputBox}>
-            <label htmlFor="email">Email: </label>
+        <form className={styles.form} onSubmit={onSubmitHandler}>
+          <div
+            ref={nameDivEl}
+            className={`${styles.inputBox} ${styles.hiddenEl}`}
+          >
+            <label ref={nameLabelEl} className={styles.hiddenEl} htmlFor="name">
+              Name:{" "}
+            </label>
             <input
+              ref={nameInputEl}
+              className={styles.hiddenEl}
+              id="name"
+              name="name"
+              type="text"
+              value={formData.name}
+              onChange={changeHandler}
+              placeholder="Your name"
+            />
+          </div>
+          <div className={styles.inputBox}>
+            <label
+              ref={emailLabelEl}
+              className={styles.changedPositionElements}
+              htmlFor="email"
+            >
+              Email:{" "}
+            </label>
+            <input
+              ref={emailInputEl}
+              className={styles.changedPositionElements}
               id="email"
               name="email"
               type="text"
@@ -106,8 +140,16 @@ export const AuthPage = () => {
             />
           </div>
           <div className={styles.inputBox}>
-            <label htmlFor="password">Password: </label>
+            <label
+              ref={passLabelEl}
+              className={styles.changedPositionElements}
+              htmlFor="password"
+            >
+              Password:{" "}
+            </label>
             <input
+              ref={passInputEl}
+              className={styles.changedPositionElements}
               id="password"
               name="password"
               type="password"
@@ -118,16 +160,16 @@ export const AuthPage = () => {
           </div>
           <div className={styles.btn_group}>
             {isLogin ? (
-              <button onClick={registerHandler} className={styles.btn}>
+              <button name="registration" className={styles.btn} disabled={isLoading}>
                 REGISTER
               </button>
             ) : (
-              <button onClick={loginHandler} className={styles.btn}>
+              <button name="login" className={styles.btn} disabled={isLoading}>
                 LOGIN
               </button>
             )}
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );
