@@ -56,6 +56,7 @@ const registration = async (req, res, next) => {
       message: "You have successfully registered.",
       token: jwtToken,
       userId: user._id,
+      userName: user.name,
       roles: [userRole],
     });
   } catch (err) {
@@ -105,6 +106,7 @@ const login = async (req, res, next) => {
       message: "You have successfully logged.",
       token: jwtToken,
       userId: candidate._id,
+      userName: candidate.name,
       roles: await getRoleNames(),
     });
   } catch (err) {

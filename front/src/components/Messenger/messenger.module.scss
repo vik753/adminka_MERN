@@ -1,9 +1,9 @@
 .message {
   position: absolute;
   right: 10px;
-  width: 80vw;
-  background: #003558;
-  border: 1px solid lighten(#003558, 10%);
+  width: 80%;
+  background: #eee2cc;
+  border: 1px solid darken(#ecdcbc, 10%);
   border-radius: 4px;
   display: inline-flex;
   justify-content: space-between;
@@ -11,7 +11,7 @@
   z-index: 100;
   opacity: 0.8;
   padding: 0 10px;
-  color: white;
+  color: #333;
 
   p {
     font-size: 1rem;
@@ -28,7 +28,7 @@
     flex-basis: 30px;
     justify-content: center;
     align-items: center;
-    border: 1px solid white;
+    border: 1px solid #333;
     border-radius: 50%;
     width: 30px;
     height: 30px;

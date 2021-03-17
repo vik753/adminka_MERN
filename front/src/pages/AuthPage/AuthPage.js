@@ -1,15 +1,18 @@
 import { useState, useEffect, useContext, useRef } from "react";
-import { useHistory } from "react-router-dom";
+import { BrowserRouter as Router, useHistory } from "react-router-dom";
 
 import styles from "./authPage.module.scss";
 import { useHttp } from "../../hooks/http.hook";
 import { AuthContext } from "../../context/AuthContext";
 import {
+  changeBgBalls1,
+  changeBgBallsStart,
   changePositionHide,
   changePositionShow,
   hideElements,
   showElements,
 } from "../../helpers/animations";
+
 
 export const AuthPage = () => {
   const [formData, setFormData] = useState({
@@ -19,9 +22,16 @@ export const AuthPage = () => {
   });
   const [isLogin, setIsLogin] = useState(false);
   const { httpError, clearHttpError, isLoading, request } = useHttp();
-  const { jwtToken, userId, roles, saveLogin, logout, ready, showMessage } = useContext(
-    AuthContext
-  );
+  const {
+    jwtToken,
+    userId,
+    userName,
+    roles,
+    saveLogin,
+    logout,
+    ready,
+    showMessage,
+  } = useContext(AuthContext);
   const history = useHistory();
   const nameInputEl = useRef(null);
   const nameLabelEl = useRef(null);
@@ -32,13 +42,14 @@ export const AuthPage = () => {
   const passLabelEl = useRef(null);
   const passInputEl = useRef(null);
 
+  const bgLeftEl = useRef(null);
+  const bgRightEl = useRef(null);
 
   /*----------------------
    * Error Handler
    * ----------------------*/
   useEffect(() => {
     if (httpError) {
-      //TODO create message viewer.
       showMessage(httpError);
       console.log("HTTP Error: ", httpError);
       clearHttpError();
@@ -50,6 +61,10 @@ export const AuthPage = () => {
       history.push("/home");
     }
   }, [jwtToken]);
+
+  useEffect(() => {
+    changeBgBallsStart(bgLeftEl.current, bgRightEl.current);
+  }, []);
 
   const changeHandler = (e) => {
     setFormData((state) => ({
@@ -66,8 +81,8 @@ export const AuthPage = () => {
         ...formData,
         userRole: method === "registration" ? "USER" : null,
       });
-      const { message, token, userId, roles } = data;
-      saveLogin(token, userId, roles);
+      const { message, token, userId, roles, userName } = data;
+      saveLogin(token, userId, roles, userName);
     } catch (err) {
       console.log("registerHandler error: ", err);
     }
@@ -85,15 +100,27 @@ export const AuthPage = () => {
       passLabelEl.current,
       passInputEl.current,
     ];
-    isLogin ? hideElements(hiddenElements) : showElements(hiddenElements);
-    isLogin
-      ? changePositionHide(changePositionElements)
-      : changePositionShow(changePositionElements);
+    const { forward, backward } = changeBgBalls1(
+      bgLeftEl.current,
+      bgRightEl.current
+    );
+
+    if (isLogin) {
+      hideElements(hiddenElements);
+      changePositionHide(changePositionElements);
+      backward();
+    } else {
+      showElements(hiddenElements);
+      changePositionShow(changePositionElements);
+      forward();
+    }
     setIsLogin((state) => !state);
   };
 
   return (
     <div className={styles.root}>
+      <div className={styles.leftSide} ref={bgLeftEl} />
+      <div className={styles.rightSide} ref={bgRightEl} />
       <div className={styles.form}>
         <h1>Authorization</h1>
         <div className={styles.tabs}>
@@ -160,7 +187,11 @@ export const AuthPage = () => {
           </div>
           <div className={styles.btn_group}>
             {isLogin ? (
-              <button name="registration" className={styles.btn} disabled={isLoading}>
+              <button
+                name="registration"
+                className={styles.btn}
+                disabled={isLoading}
+              >
                 REGISTER
               </button>
             ) : (
